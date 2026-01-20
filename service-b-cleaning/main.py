@@ -1,7 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from data_cleaning import basic_cleaning, add_categiries
 from service import send_data_to_service_c
+import os
 
+
+
+service_c_url = os.getenv("SERVICE_C_URL")
 
 app = FastAPI()
 
@@ -17,7 +21,7 @@ def clean_data(raw_data: list[dict]):
     try:
         cleaned_data = basic_cleaning(raw_data)
         categorized_data = add_categiries(cleaned_data)
-        is_saved = send_data_to_service_c(categorized_data)
+        is_saved = send_data_to_service_c(service_c_url, categorized_data)
 
 
     except Exception as e:
