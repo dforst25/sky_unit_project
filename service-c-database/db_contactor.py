@@ -1,12 +1,4 @@
-import os
 import mysql.connector
-
-
-SQL_HOST = os.getenv("SQL_HOST", 'localhost')
-SQL_PORT = os.getenv("SQL_PORT", 3307)
-SQL_USER = os.getenv("SQL_USER", 'root')
-SQL_PASSWORD = os.getenv("SQL_PASSWORD", '')
-SQL_DATABASE = os.getenv("SQL_DATABASE", 'weather')
 
 
 
@@ -28,55 +20,73 @@ class DbConnection:
         if not self.connection.is_connected:
             raise ConnectionError("Couldn't connect to the database")
 
-        cursor = self.connection.cursor()            
-        return cursor
+        return self.connection            
 
 
 
     def create_table(self):
-        cursor = self.get_connection()
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database}")
-
-        cursor.execute(f"USE {self.database}")
-
+        cnx = self.get_connection()
         create_statement = """
-            CREATE TABLE IF NOT EXISTS records (
-            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            timestamp DATETIME  NOT NULL,
-            location_name VARCHAR(255) NOT NULL,
-            country VARCHAR(255) NOT NULL,
-            latitude FLOAT NOT NULL,
-            longitude FLOAT NOT NULL,
-            temperature FLOAT NOT NULL,
-            wind_speed FLOAT NOT NULL,
-            humidity INT NOT NULL,
-            temperature_category VARCHAR(255) NOT NULL,
-            wind_category VARCHAR(255) NOT NULL
-            );"""
+                CREATE TABLE IF NOT EXISTS records (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                timestamp DATETIME  NOT NULL,
+                location_name VARCHAR(255) NOT NULL,
+                country VARCHAR(255) NOT NULL,
+                latitude FLOAT NOT NULL,
+                longitude FLOAT NOT NULL,
+                temperature FLOAT NOT NULL,
+                wind_speed FLOAT NOT NULL,
+                humidity INT NOT NULL,
+                temperature_category VARCHAR(255) NOT NULL,
+                wind_category VARCHAR(255) NOT NULL
+                );"""
 
-        cursor.execute(create_statement)
-        self.connection.commit()
-    
+        with cnx.cursor() as cursor:
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database}")
+
+            cursor.execute(f"USE {self.database}")
+
+            cursor.execute(create_statement)
+            self.connection.commit()
+        
 
 
     def insert_records(self, records):
-        cursor = self.get_connection()
-        cursor.execute(f"USE {self.database}")
+        cnx = self.get_connection()
 
         insert_statement = """INSERT INTO records (
-                timestamp, location_name, country,
-                latitude, longitude, temperature, wind_speed, humidity, temperature_category, wind_category)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ;"""
+                    timestamp, location_name, country,
+                    latitude, longitude, temperature, wind_speed, humidity, temperature_category, wind_category)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ;"""
 
         values = [tuple(record.values()) for record in records]
+        row_count = 0
+        with cnx.cursor() as cursor:
+            cursor.execute(f"USE {self.database}")
 
-        if len(values) > 1:
-            cursor.executemany(insert_statement, values)
-        elif len(values) == 1:
-            cursor.execute(insert_statement, values[0])
-        else:
-            print('There are no record to insert')
+            if len(values) > 1:
+                cursor.executemany(insert_statement, values)
+            elif len(values) == 1:
+                cursor.execute(insert_statement, values[0])
+            else:
+                raise ValueError("No records to insert")
+            row_count = cursor.rowcount
 
-        self.connection.commit()
-        return cursor.rowcount
+
+        cnx.commit()
+        return row_count
+
+    def get_records_count(self):
+        cnx = self.get_connection()
+        select_count_statement = """SELECT location_name, COUNT(*) as count
+                                    FROM records
+                                    GROUP BY location_name
+                                    ORDER BY count DESC;"""
+        with cnx.cursor(dictionary=True) as cursor:
+            cursor.execute(f"USE {self.database}")
+            cursor.execute(select_count_statement)
+            result = cursor.fetchall()
+        return result
+
+        
