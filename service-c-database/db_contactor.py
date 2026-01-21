@@ -62,7 +62,11 @@ class DbConnection:
 
         values = [tuple(record.values()) for record in records]
         row_count = 0
-        with cnx.cursor() as cursor:
+
+        with cnx.cursor(dictionary=True) as cursor:
+            cursor.execute('SELECT COUNT(*) FROM records;')
+            length_before = cursor.fetchone()[0]
+
             cursor.execute(f"USE {self.database}")
 
             if len(values) > 1:
@@ -71,11 +75,18 @@ class DbConnection:
                 cursor.execute(insert_statement, values[0])
             else:
                 raise ValueError("No records to insert")
+            
             row_count = cursor.rowcount
-
+            
+            cursor.execute('SELECT COUNT(*) FROM records;')
+            length_after = cursor.fetchone()
 
         cnx.commit()
-        return row_count
+        return {'message': 
+                f'All records in database: {length_before}.'
+                f'All records inserted: {row_count}. All records in database yet: {length_after}.'
+                }
+
 
     def get_records_count(self):
         cnx = self.get_connection()
@@ -83,10 +94,88 @@ class DbConnection:
                                     FROM records
                                     GROUP BY location_name
                                     ORDER BY count DESC;"""
+        
         with cnx.cursor(dictionary=True) as cursor:
             cursor.execute(f"USE {self.database}")
             cursor.execute(select_count_statement)
             result = cursor.fetchall()
         return result
+    
+
+
+    def get_avg_temperature(self):
+        cnx = self.get_connection()
+        select_avg_statement = """SELECT location_name, AVG(temperature) as avg_temperature
+                                    FROM records
+                                    GROUP BY location_name
+                                    ORDER BY location_name;"""
+        
+        with cnx.cursor(dictionary=True) as cursor:
+            cursor.execute(f"USE {self.database}")
+            cursor.execute(select_avg_statement)
+            result = cursor.fetchall()
+        return result
+    
+
+
+    def get_max_wind_speed(self):
+        cnx = self.get_connection()
+        select_max_statement = """SELECT location_name, MAX(wind_speed) as max_wind_speed
+                                    FROM records
+                                    GROUP BY location_name
+                                    ORDER BY location_name;"""
+        
+        with cnx.cursor(dictionary=True) as cursor:
+            cursor.execute(f"USE {self.database}")
+            cursor.execute(select_max_statement)
+            result = cursor.fetchall()
+        return result
+
+
+    def get_extreme_records(self):
+        cnx = self.get_connection()
+        select_extreme_statement = """SELECT *
+   FROM(SELECT location_name, temperature_category, wind_category
+        FROM records r1
+        GROUP BY location_name, temperature_category, wind_category
+        HAVING COUNT(*) = (SELECT MAX(count)
+                           FROM (SELECT location_name, COUNT(*) AS count
+                                 FROM records r2
+                                 WHERE r1.location_name = r2.location_name
+                                 GROUP BY location_name, temperature_category, wind_category) T2
+        ) T1
+   WHERE (temperature_category = 'hot' AND wind_category = 'calm')
+   OR (temperature_category = 'cold' AND wind_category = 'windy')
+   ;"""
 
         
+        with cnx.cursor(dictionary=True) as cursor:
+            cursor.execute(f"USE {self.database}")
+            cursor.execute(select_extreme_statement)
+            result = cursor.fetchall()
+        return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""SELECT location_name, MAX(count)
+   FROM (SELECT location_name, temperature_category, wind_category, COUNT(*) AS count
+        FROM records
+        GROUP BY location_name, temperature_category, wind_category) AS T
+   GROUP BY location_name;"""

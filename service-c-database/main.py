@@ -20,6 +20,8 @@ DB_connector = DbConnection(
     database=SQL_DATABASE
 )
 
+
+
 @app.post("/records")
 def records(records_list: list[Record]):
     try:
@@ -41,6 +43,41 @@ def records_count():
         return DB_connector.get_records_count()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.get("/records/avg-temperature")
+def avg_temp():
+    try:
+        return DB_connector.get_avg_temperature()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.get('/records/max-wind')
+def max_wind():
+    try:
+        return DB_connector.get_max_wind_speed()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
+
+
+@app.get('/records/extreme')
+def extreme():
+    try:
+        return DB_connector.get_extreme_records()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        app="main:app", 
+        host="0.0.0.0", 
+        port=8000, 
+        reload=True
+        )
