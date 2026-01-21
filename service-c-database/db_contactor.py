@@ -134,21 +134,22 @@ class DbConnection:
 
     def get_extreme_records(self):
         cnx = self.get_connection()
-        select_extreme_statement = """SELECT *
-   FROM(SELECT location_name, temperature_category, wind_category
-        FROM records r1
-        GROUP BY location_name, temperature_category, wind_category
-        HAVING COUNT(*) = (SELECT MAX(count)
-                           FROM (SELECT location_name, COUNT(*) AS count
-                                 FROM records r2
-                                 WHERE r1.location_name = r2.location_name
-                                 GROUP BY location_name, temperature_category, wind_category) T2
-        ) T1
-   WHERE (temperature_category = 'hot' AND wind_category = 'calm')
-   OR (temperature_category = 'cold' AND wind_category = 'windy')
-   ;"""
-
-        
+        select_extreme_statement = """WITH WeatherCounts AS (
+                                    SELECT location_name, temperature_category, wind_category, COUNT(*) as cnt
+                                    FROM records
+                                    GROUP BY location_name, temperature_category, wind_category
+                                ),
+                                MaxCounts AS (
+                                    SELECT location_name, MAX(cnt) as max_cnt
+                                    FROM WeatherCounts
+                                    GROUP BY location_name
+                                )
+                                SELECT w.location_name, w.temperature_category, w.wind_category
+                                FROM WeatherCounts w
+                                JOIN MaxCounts m ON w.location_name = m.location_name AND w.cnt = m.max_cnt
+                                WHERE (w.temperature_category = 'hot' AND w.wind_category = 'calm')
+                                OR (w.temperature_category = 'cold' AND w.wind_category = 'windy');"""
+                                                    
         with cnx.cursor(dictionary=True) as cursor:
             cursor.execute(f"USE {self.database}")
             cursor.execute(select_extreme_statement)
