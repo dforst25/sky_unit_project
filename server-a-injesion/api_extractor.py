@@ -1,15 +1,20 @@
 import requests
 from datetime import datetime
+import os
+
+
+API_GEO_URL = os.getenv('API_GEO_URL', 'https://geocoding-api.open-meteo.com/v1/search')
+API_METEO_URL = os.getenv('API_METEO_URL', 'https://api.open-meteo.com/v1/forecast')
+
 
 # --------- Helper: Geocoding ----------
 def fetch_coordinates(location_name: str):
-    url = "https://geocoding-api.open-meteo.com/v1/search"
     params = {
         "name": location_name,
         "count": 1
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(API_GEO_URL, params=params)
     response.raise_for_status()
     data = response.json()
 
@@ -27,7 +32,6 @@ def fetch_coordinates(location_name: str):
 
 # --------- Helper: Weather ----------
 def fetch_hourly_weather(latitude: float, longitude: float):
-    url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": latitude,
         "longitude": longitude,
@@ -36,7 +40,7 @@ def fetch_hourly_weather(latitude: float, longitude: float):
         "timezone": "UTC"
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(API_METEO_URL, params=params)
     response.raise_for_status()
     return response.json()["hourly"]
 
