@@ -5,7 +5,7 @@ import os
 
 
 
-service_c_url = os.getenv("SERVICE_C_URL")
+service_c_url = os.getenv("SERVICE_C_URL", 'http://localhost:8000/records')
 
 app = FastAPI()
 
@@ -21,7 +21,7 @@ def clean_data(raw_data: list[dict]):
     try:
         cleaned_data = basic_cleaning(raw_data)
         categorized_data = add_categiries(cleaned_data)
-        is_saved = send_data_to_service_c(service_c_url, categorized_data)
+        is_saved = send_data_to_service_c(service_c_url, categorized_data.to_dict(orient='records'))
 
 
     except Exception as e:
@@ -29,12 +29,6 @@ def clean_data(raw_data: list[dict]):
 
 
     return is_saved
-
-
-
-
-
-
 
 
 

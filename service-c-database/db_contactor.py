@@ -64,10 +64,10 @@ class DbConnection:
         row_count = 0
 
         with cnx.cursor(dictionary=True) as cursor:
-            cursor.execute('SELECT COUNT(*) FROM records;')
-            length_before = cursor.fetchone()[0]
+            cursor.execute(f"USE {self.database};")
 
-            cursor.execute(f"USE {self.database}")
+            cursor.execute('SELECT COUNT(*) FROM records;')
+            length_before = cursor.fetchone()['COUNT(*)']
 
             if len(values) > 1:
                 cursor.executemany(insert_statement, values)
@@ -79,7 +79,7 @@ class DbConnection:
             row_count = cursor.rowcount
             
             cursor.execute('SELECT COUNT(*) FROM records;')
-            length_after = cursor.fetchone()
+            length_after = cursor.fetchone()['COUNT(*)']
 
         cnx.commit()
         return {'message': 
@@ -156,27 +156,3 @@ class DbConnection:
             result = cursor.fetchall()
         return result
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""SELECT location_name, MAX(count)
-   FROM (SELECT location_name, temperature_category, wind_category, COUNT(*) AS count
-        FROM records
-        GROUP BY location_name, temperature_category, wind_category) AS T
-   GROUP BY location_name;"""

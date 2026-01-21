@@ -26,12 +26,13 @@ DB_connector = DbConnection(
 def records(records_list: list[Record]):
     try:
         DB_connector.create_table()
-        DB_connector.insert_records([record.model_dump() for record in records_list])
+        inserted_result = DB_connector.insert_records([record.model_dump() for record in records_list])
+        return inserted_result
     
     except ConnectionError as e:
-        raise HTTPException(status_code=500, detail={' Database  Connection Error':str(e)})
+        raise HTTPException(status_code=500, detail={'Database Connection Error':str(e)})
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
