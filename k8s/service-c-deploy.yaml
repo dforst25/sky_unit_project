@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  # TODO
+  labels:
+    app:  # TODO
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app:  # TODO
+  template:
+    metadata:
+      labels:
+        app:  # TODO
+    spec:
+      containers:
+      - name: # TODO
+        image: # TODO
+        ports:
+        - containerPort: 8080 # TODO
+        env:
+          - name: SERVICE_A_URLSQL_HOST
+            value: # TODO
+          - name: SQL_PORT
+            value: # TODO
+          - name: SQL_USER
+            value: # TODO
+          - name: SQL_PASSWORD
+            value: # TODO
+          - name: SQL_DATABASE
+

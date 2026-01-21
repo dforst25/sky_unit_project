@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: # TODO
+spec:
+  selector:
+    matchLabels:
+      app: # TODO # has to match .spec.template.metadata.labels
+  serviceName: "# TODO"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: # TODO # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: # TODO
+        image: # TODO
+        ports:
+        - containerPort: # TODO
+          name: # TODO
+        volumeMounts:
+        - name: # TODO
+          mountPath: # TODO
+  volumeClaimTemplates:
+  - metadata:
+      name: # TODO
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: # TODO
+      resources:
+        requests:
+          storage: 1Gi

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from api_extractor import ingest_weather_for_location
+from service import send_records_to_service_b
 import uvicorn
 
 app = FastAPI()
@@ -8,10 +9,17 @@ app = FastAPI()
 def extract_data(city: str):
     try:
         result = ingest_weather_for_location(city)
+    
     except ValueError as e:
-        raise HTTPException(status_code=404, detail="location not found")
-    return result
+        raise HTTPException(status_code=404, detail={"Error":"location not found", "detail": str(e)})
+    
+    try:
+        data_sent = send_records_to_service_b(result)
+        return data_sent
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail={"Error": str(e)})
     
 
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host="127.0.0.1", port=8080, reload=True)
+    uvicorn.run(app="main:app", host="127.0.0.1", port=8001, reload=True)

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: # TODO
+spec:
+  selector:
+    name: # TODO
+  ports:
+    - protocol: TCP
+      port: # TODO
+      targetPort: # TODO

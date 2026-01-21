@@ -83,7 +83,7 @@ class DbConnection:
 
         cnx.commit()
         return {'message': 
-                f'All records in database: {length_before}.'
+                f'All records in database: {length_before}. '
                 f'All records inserted: {row_count}. All records in database yet: {length_after}.'
                 }
 
