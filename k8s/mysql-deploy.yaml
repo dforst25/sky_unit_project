@@ -1,35 +1,37 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: # TODO
+  name: mysql
 spec:
   selector:
     matchLabels:
-      app: # TODO # has to match .spec.template.metadata.labels
-  serviceName: "# TODO"
-  replicas: 3 # by default is 1
-  minReadySeconds: 10 # by default is 0
+      app: mysql
+  serviceName: mysql-svc
+  replicas: 3
+  minReadySeconds: 3
   template:
     metadata:
       labels:
-        app: # TODO # has to match .spec.selector.matchLabels
+        app: mysql
     spec:
-      terminationGracePeriodSeconds: 10
       containers:
-      - name: # TODO
-        image: # TODO
+      - name: mysql
+        image: mysql:7
         ports:
-        - containerPort: # TODO
-          name: # TODO
+        - containerPort: 3306
+        env:
+        - name: MY_SQL_ROOT_PASSWORD
+          value: 'password'
+        - name: MYSQL_DATABASE
+          value: 'weather'
         volumeMounts:
-        - name: # TODO
-          mountPath: # TODO
+        - name: mysql-data
+          mountPath: /var/lib/mysql
   volumeClaimTemplates:
   - metadata:
-      name: # TODO
+      name: mysql-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: # TODO
       resources:
         requests:
           storage: 1Gi

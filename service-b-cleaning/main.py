@@ -5,7 +5,7 @@ import os
 
 
 
-service_c_url = os.getenv("SERVICE_C_URL", 'http://localhost:8003/records')
+service_c_url = os.getenv("SERVICE_C_URL", 'localhost')
 
 app = FastAPI()
 

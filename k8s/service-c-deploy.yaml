@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  # TODO
+  name: service-c
   labels:
-    app:  # TODO
+    app: service-c
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app:  # TODO
+      app: service-c
   template:
     metadata:
       labels:
-        app:  # TODO
+        app: service-c
     spec:
       containers:
-      - name: # TODO
+      - name: service-c
         image: # TODO
         ports:
-        - containerPort: 8080 # TODO
+        - containerPort: 8003
         env:
-          - name: SERVICE_A_URLSQL_HOST
-            value: # TODO
-          - name: SQL_PORT
-            value: # TODO
-          - name: SQL_USER
-            value: # TODO
-          - name: SQL_PASSWORD
-            value: # TODO
-          - name: SQL_DATABASE
-
+          - name: DB_HOST
+            value: "mysql-svc"
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: "weather"
+          - name: DB_USER
+            value: "root"
+          - name: DB_PASSWORD
+            value: 'password'

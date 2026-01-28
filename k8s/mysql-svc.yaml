@@ -1,13 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: # TODO
+  name: mysql-svc
   labels:
-    app: # TODO
+    app: mysql
 spec:
   ports:
-  - port: # TODO
-    name: # TODO
+  - port: 3306
   clusterIP: None
   selector:
-    app: # TODO
+    app: mysql

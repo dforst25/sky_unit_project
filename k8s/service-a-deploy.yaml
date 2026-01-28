@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  # TODO
+  name: service-a
   labels:
-    app:  # TODO
+    app: service-a
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app:  # TODO
+      app: service-a
   template:
     metadata:
       labels:
-        app:  # TODO
+        app: service-a
     spec:
       containers:
-      - name: # TODO
+      - name: service-a
         image: # TODO
         ports:
-        - containerPort: 8080 # TODO
+        - containerPort: 8001
         env:
           - name: SERVICE_B_URL
-            value: # TODO
+            value: service-b-svc
 
 
